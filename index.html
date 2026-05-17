@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QA · Casos de Uso · Sistema SIC Teletón</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+:root {
+  --bg: #0f1117;
+  --bg2: #161b27;
+  --bg3: #1e2636;
+  --border: #2a3348;
+  --border2: #364055;
+  --text: #e2e8f4;
+  --text2: #8897b4;
+  --text3: #5a6a88;
+  --accent: #3b82f6;
+  --accent2: #1d4ed8;
+  --green: #22c55e;
+  --green-bg: #052e16;
+  --green-border: #166534;
+  --red: #ef4444;
+  --red-bg: #2d0a0a;
+  --red-border: #7f1d1d;
+  --yellow: #f59e0b;
+  --yellow-bg: #1c1500;
+  --yellow-border: #78350f;
+  --blue-bg: #0c1929;
+  --blue-border: #1e3a5f;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+  --r: 6px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13.5px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ─── LAYOUT ─────────────────────────────────────────── */
+.layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+
+/* ─── SIDEBAR ─────────────────────────────────────────── */
+.sidebar {
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.sidebar-brand {
+  padding: 22px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.brand-sys {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .15em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.brand-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.sidebar-stats {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-box {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 9px 10px;
+  text-align: center;
+}
+.stat-box .n { font-family: var(--mono); font-size: 20px; font-weight: 600; line-height: 1; }
+.stat-box .l { font-size: 10px; color: var(--text2); margin-top: 3px; }
+.stat-box.green .n { color: var(--green); }
+.stat-box.red .n { color: var(--red); }
+.stat-box.yellow .n { color: var(--yellow); }
+.stat-box.blue .n { color: var(--accent); }
+
+.progress-bar-wrap { margin-top: 12px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--text2); margin-bottom: 5px; }
+.progress-bg {
+  height: 6px;
+  background: var(--bg3);
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex;
+}
+.pb-pass { background: var(--green); transition: width .4s; }
+.pb-fail { background: var(--red); transition: width .4s; }
+.pb-block { background: var(--yellow); transition: width .4s; }
+
+.sidebar-section { padding: 12px 20px 4px; }
+.sidebar-section-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+
+.search-wrap { padding: 0 20px 10px; }
+.search-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 8px 10px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 12.5px;
+  outline: none;
+  transition: border-color .2s;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--text3); }
+
+.area-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  background: none;
+  border: none;
+  border-radius: var(--r);
+  color: var(--text2);
+  font-size: 12.5px;
+  font-family: var(--sans);
+  cursor: pointer;
+  text-align: left;
+  transition: all .15s;
+  margin-bottom: 2px;
+}
+.area-btn:hover { background: var(--bg3); color: var(--text); }
+.area-btn.active { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); }
+.area-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.area-count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 10px;
+  background: var(--bg);
+  padding: 1px 6px;
+  border-radius: 10px;
+  color: var(--text3);
+}
+
+.status-filter-wrap { padding: 0 20px 10px; display: flex; flex-direction: column; gap: 4px; }
+.status-chip {
+  padding: 5px 10px;
+  border-radius: var(--r);
+  font-size: 11.5px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text2);
+  font-family: var(--sans);
+  text-align: left;
+  transition: all .15s;
+}
+.status-chip:hover { border-color: var(--border2); color: var(--text); }
+.status-chip.active { color: var(--text); }
+.status-chip.active.all { border-color: var(--accent); background: var(--blue-bg); color: var(--accent); }
+.status-chip.active.pass { border-color: var(--green-border); background: var(--green-bg); color: var(--green); }
+.status-chip.active.fail { border-color: var(--red-border); background: var(--red-bg); color: var(--red); }
+.status-chip.active.block { border-color: var(--yellow-border); background: var(--yellow-bg); color: var(--yellow); }
+.status-chip.active.pend { border-color: var(--border2); background: var(--bg3); color: var(--text); }
+
+.sidebar-actions { padding: 12px 20px; margin-top: auto; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+.action-btn {
+  padding: 8px 12px;
+  border-radius: var(--r);
+  font-size: 12px;
+  font-family: var(--sans);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  transition: all .15s;
+  text-align: center;
+}
+.action-btn:hover { border-color: var(--accent); color: var(--accent); }
+.action-btn.primary { background: var(--accent2); border-color: var(--accent); color: #fff; }
+.action-btn.primary:hover { background: var(--accent); }
+
+/* ─── MAIN ─────────────────────────────────────────── */
+.main { padding: 28px 32px; }
+
+.main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.main-title { font-size: 18px; font-weight: 700; }
+.main-subtitle { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.result-count { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+
+.uc-grid { display: flex; flex-direction: column; gap: 10px; }
+
+/* ─── UC CARD ─────────────────────────────────────────── */
+.uc-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.uc-card.pass { border-left: 3px solid var(--green); }
+.uc-card.fail { border-left: 3px solid var(--red); }
+.uc-card.block { border-left: 3px solid var(--yellow); }
+.uc-card.pend { border-left: 3px solid var(--border2); }
+
+.uc-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .15s;
+}
+.uc-header:hover { background: var(--bg3); }
+
+.uc-id {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  min-width: 50px;
+}
+.uc-title { font-size: 13.5px; font-weight: 500; flex: 1; color: var(--text); }
+
+.area-badge {
+  font-size: 10px;
+  font-family: var(--mono);
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  border: 1px solid;
+}
+
+.status-indicator {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+  transition: all .2s;
+}
+.status-indicator.pass { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.status-indicator.fail { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+.status-indicator.block { background: var(--yellow-bg); border-color: var(--yellow); color: var(--yellow); }
+.status-indicator.pend { background: var(--bg3); border-color: var(--border2); color: var(--text3); }
+
+.chevron { font-size: 10px; color: var(--text3); transition: transform .2s; flex-shrink: 0; }
+.chevron.open { transform: rotate(90deg); }
+
+/* ─── UC BODY ─────────────────────────────────────────── */
+.uc-body { display: none; border-top: 1px solid var(--border); }
+.uc-body.open { display: block; }
+
+.uc-body-inner { padding: 16px; }
+
+.uc-desc {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.65;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.uc-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.meta-block { }
+.meta-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 6px;
+}
+.meta-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text2);
+}
+.tag.entity { background: var(--blue-bg); border-color: var(--blue-border); color: #7db3f8; }
+.tag.query { font-family: var(--mono); font-size: 10px; background: #12101e; border-color: #3d2d6b; color: #c4b5fd; max-width: 100%; white-space: normal; line-height: 1.4; }
+
+.val-list { list-style: none; }
+.val-list li {
+  font-size: 12px;
+  color: var(--text2);
+  padding: 3px 0 3px 16px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.5;
+}
+.val-list li:last-child { border-bottom: none; }
+.val-list li::before { content: '▸'; position: absolute; left: 0; color: var(--accent); font-size: 9px; top: 5px; }
+
+/* ─── TEST PANEL ─────────────────────────────────────── */
+.test-panel {
+  background: var(--bg3);
+  border-top: 1px solid var(--border);
+  padding: 14px 16px;
+}
+.test-panel-title {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .12em;
+  text-transform: upperca<Fse;
+  color: var(--text3);
+  margin-bottom: 10px;
+}
+.status-btns { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.status-btn {
+  padding: 6px 14px;
+  border-radius: var(--r);
+  font-size: 12px;
+  font-family: var(--sans);
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  color: var(--text2);
+  transition: all .15s;
+}
+.status-btn:hover { border-color: var(--border2); color: var(--text); }
+.status-btn.active-pass { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.status-btn.active-fail { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+.status-btn.active-block { background: var(--yellow-bg); border-color: var(--yellow); color: var(--yellow); }
+.status-btn.active-pend { background: var(--bg); border-color: var(--border2); color: var(--text); }
+
+.notes-area {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 8px 10px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 12.5px;
+  resize: vertical;
+  min-height: 60px;
+  outline: none;
+  transition: border-color .2s;
+}
+.notes-area:focus { border-color: var(--accent); }
+.notes-area::placeholder { color: var(--text3); }
+
+/* ─── EMPTY STATE ─────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text3);
+}
+.empty-state .icon { font-size: 36px; margin-bottom: 12px; }
+.empty-state p { font-size: 13px; }
+
+/* ─── MODAL ─────────────────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 28px;
+  max-width: 480px;
+  width: 90%;
+}
+.modal h3 { font-size: 16px; margin-bottom: 8px; }
+.modal p { color: var(--text2); font-size: 13px; margin-bottom: 20px; }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ─── TOAST ─────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 10px 16px;
+  font-size: 12.5px;
+  color: var(--text);
+  z-index: 2000;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all .25s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* ─── SCROLLBAR ─────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+
+/* ─── PRINT ─────────────────────────────────────────── */
+@media print {
+  .sidebar { display: none; }
+  .layout { grid-template-columns: 1fr; }
+  .uc-body { display: block !important; }
+  .test-panel { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-sys">Sistema SIC · Teletón</div>
+      <div class="brand-title">QA · Casos de Uso<br/>Roles &amp; Perfiles</div>
+    </div>
+
+    <div class="sidebar-stats">
+      <div class="stats-row">
+        <div class="stat-box blue"><div class="n" id="cnt-total">56</div><div class="l">Total UC</div></div>
+        <div class="stat-box"><div class="n" id="cnt-pend" style="color:var(--text2)">56</div><div class="l">Pendientes</div></div>
+        <div class="stat-box green"><div class="n" id="cnt-pass">0</div><div class="l">Pasaron</div></div>
+        <div class="stat-box red"><div class="n" id="cnt-fail">0</div><div class="l">Fallaron</div></div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-label">
+          <span>Progreso de pruebas</span>
+          <span id="pct-label">0%</span>
+        </div>
+        <div class="progress-bg">
+          <div class="pb-pass" id="pb-pass" style="width:0%"></div>
+          <div class="pb-fail" id="pb-fail" style="width:0%"></div>
+          <div class="pb-block" id="pb-block" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-wrap" style="padding:12px 20px 8px">
+      <input class="search-input" id="search" placeholder="🔍  Buscar caso de uso..." oninput="applyFilters()">
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Área funcional</div>
+      <button class="area-btn active" data-area="todos" onclick="setArea(this,'todos')">
+        <span class="area-dot" style="background:#8897b4"></span>
+        Todos los casos
+        <span class="area-count" id="ac-todos">56</span>
+      </button>
+      <button class="area-btn" data-area="Persona" onclick="setArea(this,'Persona')">
+        <span class="area-dot" style="background:#3b82f6"></span>
+        Persona
+        <span class="area-count">8</span>
+      </button>
+      <button class="area-btn" data-area="Contrato" onclick="setArea(this,'Contrato')">
+        <span class="area-dot" style="background:#22c55e"></span>
+        Contrato
+        <span class="area-count">9</span>
+      </button>
+      <button class="area-btn" data-area="Especialidad" onclick="setArea(this,'Especialidad')">
+        <span class="area-dot" style="background:#f59e0b"></span>
+        Especialidad
+        <span class="area-count">5</span>
+      </button>
+      <button class="area-btn" data-area="PerfilRol" onclick="setArea(this,'PerfilRol')">
+        <span class="area-dot" style="background:#a78bfa"></span>
+        PerfilRol
+        <span class="area-count">14</span>
+      </button>
+      <button class="area-btn" data-area="Funcion" onclick="setArea(this,'Funcion')">
+        <span class="area-dot" style="background:#f472b6"></span>
+        Funcion
+        <span class="area-count">9</span>
+      </button>
+      <button class="area-btn" data-area="Seguridad" onclick="setArea(this,'Seguridad')">
+        <span class="area-dot" style="background:#ef4444"></span>
+        Seguridad
+        <span class="area-count">5</span>
+      </button>
+      <button class="area-btn" data-area="Reportes" onclick="setArea(this,'Reportes')">
+        <span class="area-dot" style="background:#34d399"></span>
+        Reportes
+        <span class="area-count">6</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section" style="margin-top:8px">
+      <div class="sidebar-section-label">Filtrar por estado</div>
+    </div>
+    <div class="status-filter-wrap">
+      <button class="status-chip active all" data-st="todos" onclick="setStatus(this,'todos')">⬜ Todos los estados</button>
+      <button class="status-chip pend" data-st="pend" onclick="setStatus(this,'pend')">◯ Pendientes</button>
+      <button class="status-chip pass" data-st="pass" onclick="setStatus(this,'pass')">✅ Pasaron</button>
+      <button class="status-chip fail" data-st="fail" onclick="setStatus(this,'fail')">❌ Fallaron</button>
+      <button class="status-chip block" data-st="block" onclick="setStatus(this,'block')">⚠️ Bloqueados</button>
+    </div>
+
+    <div class="sidebar-actions">
+      <button class="action-btn" onclick="exportCSV()">⬇ Exportar resultados CSV</button>
+      <button class="action-btn" onclick="confirmReset()">↺ Reiniciar todo</button>
+      <button class="action-btn primary" onclick="expandAll()">↕ Expandir / colapsar todo</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="main-header">
+      <div>
+        <div class="main-title">Casos de Uso — Pruebas del Modelo ER</div>
+        <div class="main-subtitle">Haz clic en una tarjeta para expandir · Marca el estado de cada prueba · Los cambios se guardan automáticamente</div>
+      </div>
+      <div class="result-count" id="result-count">Mostrando 56 de 56</div>
+    </div>
+    <div class="uc-grid" id="uc-grid"></div>
+    <div class="empty-state" id="empty-state" style="display:none">
+      <div class="icon">🔎</div>
+      <p>No se encontraron casos de uso con los filtros actuales.</p>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL RESET -->
+<div class="modal-overlay" id="modal-reset">
+  <div class="modal">
+    <h3>¿Reiniciar todas las pruebas?</h3>
+    <p>Esto borrará todos los estados y notas registrados. Esta acción no se puede deshacer.</p>
+    <div class="modal-btns">
+      <button class="action-btn" onclick="closeModal()">Cancelar</button>
+      <button class="action-btn primary" onclick="doReset()">Sí, reiniciar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATOS ────────────────────────────────────────────────────────────────────
+const AREA_COLORS = {
+  Persona:     {dot:'#3b82f6', badge:'background:#0c1929;color:#7db3f8;border-color:#1e3a5f'},
+  Contrato:    {dot:'#22c55e', badge:'background:#052e16;color:#86efac;border-color:#166534'},
+  Especialidad:{dot:'#f59e0b', badge:'background:#1c1500;color:#fcd34d;border-color:#78350f'},
+  PerfilRol:   {dot:'#a78bfa', badge:'background:#1e1036;color:#c4b5fd;border-color:#4c1d95'},
+  Funcion:     {dot:'#f472b6', badge:'background:#2d0a1e;color:#f9a8d4;border-color:#831843'},
+  Seguridad:   {dot:'#ef4444', badge:'background:#2d0a0a;color:#fca5a5;border-color:#7f1d1d'},
+  Reportes:    {dot:'#34d399', badge:'background:#052e20;color:#6ee7b7;border-color:#065f46'},
+};
+
+const UC = [
+  {id:'UC-01',area:'Persona',title:'Crear nueva persona en el sistema',
+   desc:'El administrador registra un nuevo profesional. Se genera un registro en Persona con nombre, apellido paterno/materno, RUT (Dv), tipo de documento, fecha de nacimiento, teléfono, usuario de red y se establece Activo=1, Vigencia=1, AccountEnabled=1.',
+   ent:['Persona'],
+   qry:['INSERT Persona (Nombres, ApellidoPaterno, ApellidoMaterno, Rut, Dv, TipoDocumento, FechaNacimiento, TelefonoCelular, Usuario, Activo=1, Vigencia=1, AccountEnabled=1)'],
+   val:['RUT válido con dígito verificador (Dv)','Usuario único en el sistema (constraint UNIQUE)','TipoDocumento no puede ser NULL','FechaNacimiento debe ser fecha pasada']},
+
+  {id:'UC-02',area:'Persona',title:'Buscar persona por nombre o apellido (autocomplete)',
+   desc:'El sistema ofrece autocomplete al escribir en el campo Usuario. Retorna nombre, apellido paterno, apellido materno, especialidad e instituto. Filtra solo Activo=1.',
+   ent:['Persona'],
+   qry:['SELECT Id, Nombres, ApellidoPaterno, ApellidoMaterno FROM Persona WHERE Activo=1 AND (Nombres LIKE \'%?%\' OR ApellidoPaterno LIKE \'%?%\')'],
+   val:['Mínimo 2 caracteres para disparar la búsqueda','Resultado vacío si no hay coincidencias (no error)','Excluir personas con Activo=0']},
+
+  {id:'UC-03',area:'Persona',title:'Buscar persona por usuario de red',
+   desc:'Permite localizar un funcionario buscando por el campo Usuario (login de red). Útil para soporte IT cuando se conoce el usuario pero no el nombre completo.',
+   ent:['Persona'],
+   qry:['SELECT * FROM Persona WHERE Usuario = ? COLLATE SQL_Latin1_General_CP1_CI_AS'],
+   val:['Búsqueda case-insensitive','Advertencia visual si Activo=0 o Vigencia=0','Advertencia adicional si AccountEnabled=0']},
+
+  {id:'UC-04',area:'Persona',title:'Verificar estado de cuenta (bloqueada / habilitada)',
+   desc:'El sistema consulta AccountEnabled y Loginerrors. Si AccountEnabled=0, el acceso está bloqueado. Se muestra LastLoginErrorDate para auditoría.',
+   ent:['Persona'],
+   qry:['SELECT AccountEnabled, Loginerrors, LastLoginErrorDate FROM Persona WHERE Id = ?'],
+   val:['AccountEnabled ≠ Activo: Activo = vigencia laboral, AccountEnabled = acceso al sistema HIS','Ambos pueden ser 0 simultáneamente (baja + bloqueo)']},
+
+  {id:'UC-05',area:'Persona',title:'Bloquear cuenta tras intentos fallidos de login',
+   desc:'Cada intento fallido incrementa Loginerrors. Al superar el umbral (ej. 5), el sistema pone AccountEnabled=0 y registra LastLoginErrorDate. Un admin puede rehabilitar la cuenta.',
+   ent:['Persona'],
+   qry:['UPDATE Persona SET Loginerrors=Loginerrors+1, LastLoginErrorDate=GETDATE() WHERE Id=?','UPDATE Persona SET AccountEnabled=0 WHERE Id=? AND Loginerrors>=5','UPDATE Persona SET AccountEnabled=1, Loginerrors=0 WHERE Id=? -- rehabilitar'],
+   val:['Loginerrors se resetea a 0 al rehabilitar','Solo AdminCentral o IT puede habilitar cuenta bloqueada','Registrar evento de bloqueo en log de auditoría']},
+
+  {id:'UC-06',area:'Persona',title:'Desactivar persona (baja laboral)',
+   desc:'Al producirse una baja, se pone Activo=0 y Vigencia=0. La persona no aparece en búsquedas ni puede autenticarse. Sus contratos activos se desactivan en cascada.',
+   ent:['Persona','Contrato'],
+   qry:['UPDATE Persona SET Activo=0, Vigencia=0, AccountEnabled=0 WHERE Id=?','UPDATE Contrato SET Activo=0 WHERE PersonaId=? AND Activo=1'],
+   val:['Verificar si la persona tiene contratos activos antes de desactivar','Operación en cascada sobre Contrato, ContratoEspecialidad, ContratoInstituto','Registrar fecha y responsable del cambio']},
+
+  {id:'UC-07',area:'Persona',title:'Gestionar nombre social',
+   desc:'El sistema permite registrar un NombreSocial diferente al nombre legal. Si NombreSocial tiene valor, se usa en pantallas de atención en lugar del campo Nombres.',
+   ent:['Persona'],
+   qry:['UPDATE Persona SET NombreSocial = ? WHERE Id = ?','SELECT ISNULL(NombreSocial, Nombres) AS NombreVisible FROM Persona WHERE Id = ?'],
+   val:['Nvarchar(50) — máximo 50 caracteres','NULL implica usar el nombre legal (Nombres)','El nombre legal no se modifica al asignar NombreSocial']},
+
+  {id:'UC-08',area:'Persona',title:'Identificar administrador central (acceso nacional)',
+   desc:'El campo AdminCentral=1 indica que el usuario tiene acceso a datos de todos los institutos sin restricción por ContratoInstituto. Habilita el Rol 200 (PowerBI Nacional).',
+   ent:['Persona','PerfilRol'],
+   qry:['SELECT * FROM Persona WHERE AdminCentral=1 AND Activo=1'],
+   val:['AdminCentral=1 debe coexistir con Rol 200 (PowerBI Nacional) en PerfilRol','Solo perfiles Gerencia o Informática deberían tener AdminCentral=1']},
+
+  {id:'UC-09',area:'Contrato',title:'Crear contrato laboral para una persona',
+   desc:'Al contratar a un funcionario, se registra el contrato con PersonaId, MinutosContratados, PeriodoDesde, PeriodoHasta y Activo=1. Si es indefinido, EsContratoIndefinido=1 y PeriodoHasta puede ser NULL.',
+   ent:['Contrato'],
+   qry:['INSERT Contrato (PersonaId, MinutosContratados, MinutosBloqueados, PeriodoDesde, PeriodoHasta, EsContratoIndefinido, Activo, CantidadSobreCupo)'],
+   val:['PersonaId debe existir y estar Activo=1','Si EsContratoIndefinido=1, PeriodoHasta puede ser NULL','MinutosContratados > 0','MinutosBloqueados ≤ MinutosContratados']},
+
+  {id:'UC-10',area:'Contrato',title:'Verificar vigencia de contrato por período',
+   desc:'Antes de permitir acceso o agendar atenciones, se valida que exista al menos un contrato activo donde PeriodoDesde ≤ hoy ≤ PeriodoHasta, o EsContratoIndefinido=1.',
+   ent:['Contrato'],
+   qry:['SELECT * FROM Contrato WHERE PersonaId=? AND Activo=1 AND (EsContratoIndefinido=1 OR (PeriodoDesde<=GETDATE() AND PeriodoHasta>=GETDATE()))'],
+   val:['Retornar error si no hay contrato vigente','Advertir cuando PeriodoHasta está a menos de 30 días de vencer','Considerar contratos superpuestos del mismo funcionario']},
+
+  {id:'UC-11',area:'Contrato',title:'Registrar contrato indefinido',
+   desc:'Para funcionarios de planta se usa EsContratoIndefinido=1. La validación de vigencia ignora PeriodoHasta y solo verifica Activo=1.',
+   ent:['Contrato'],
+   qry:['INSERT Contrato SET EsContratoIndefinido=1, PeriodoHasta=NULL, Activo=1'],
+   val:['Solo puede haber un contrato indefinido activo por persona a la vez','EsContratoIndefinido=1 no requiere PeriodoHasta']},
+
+  {id:'UC-12',area:'Contrato',title:'Consultar minutos contratados vs bloqueados',
+   desc:'Se consultan MinutosContratados y MinutosBloqueados para calcular la disponibilidad real. MinutosDisponibles = MinutosContratados - MinutosBloqueados.',
+   ent:['Contrato'],
+   qry:['SELECT MinutosContratados, MinutosBloqueados, (MinutosContratados-MinutosBloqueados) AS MinutosDisponibles FROM Contrato WHERE PersonaId=? AND Activo=1'],
+   val:['MinutosBloqueados no puede superar MinutosContratados','Resultado negativo indica error de datos — alertar al administrador']},
+
+  {id:'UC-13',area:'Contrato',title:'Asignar especialidad a un contrato',
+   desc:'Un profesional puede ser contratado para una o más especialidades. Se crea un registro en ContratoEspecialidad con ContratoId, EspecialidadId y TotalMinutos asignados.',
+   ent:['Contrato','ContratoEspecialidad','Especialidad'],
+   qry:['INSERT ContratoEspecialidad (ContratoId, EspecialidadId, TotalMinutos, Activo)'],
+   val:['EspecialidadId debe existir en Especialidad con Activo=1','Suma de TotalMinutos por especialidad ≤ MinutosContratados','No duplicar misma EspecialidadId en el mismo ContratoId']},
+
+  {id:'UC-14',area:'Contrato',title:'Asignar instituto principal al contrato',
+   desc:'Se crea un registro en ContratoInstituto con EsInstitutoPrincipal=1. Solo puede haber un instituto principal por contrato. Determina la sede habitual del profesional.',
+   ent:['Contrato','ContratoInstituto'],
+   qry:['UPDATE ContratoInstituto SET EsInstitutoPrincipal=0 WHERE ContratoId=?','INSERT ContratoInstituto (ContratoId, InstitutoId, EsInstitutoPrincipal=1, Activo=1)'],
+   val:['Unicidad: solo 1 registro con EsInstitutoPrincipal=1 por ContratoId','InstitutoId debe existir en catálogo (14 institutos: SANTIAGO, ARICA, IQUIQUE, etc.)','Limpiar el principal anterior antes de insertar el nuevo']},
+
+  {id:'UC-15',area:'Contrato',title:'Asignar múltiples institutos a un contrato (itinerante)',
+   desc:'Un profesional que trabaja en más de un instituto tiene varios registros en ContratoInstituto para el mismo ContratoId. Solo uno lleva EsInstitutoPrincipal=1.',
+   ent:['Contrato','ContratoInstituto'],
+   qry:['SELECT CI.InstitutoId, CI.EsInstitutoPrincipal FROM ContratoInstituto CI WHERE CI.ContratoId=? AND CI.Activo=1'],
+   val:['Al menos 1 registro por contrato activo','Exactamente 1 con EsInstitutoPrincipal=1 por contrato','No duplicar mismo InstitutoId en el mismo contrato']},
+
+  {id:'UC-16',area:'Contrato',title:'Desactivar contrato (término anticipado o vencimiento)',
+   desc:'Al finalizar un contrato se pone Activo=0. Los registros hijos (ContratoEspecialidad, ContratoInstituto) también se desactivan. La persona puede seguir activa si tiene otro contrato vigente.',
+   ent:['Contrato','ContratoEspecialidad','ContratoInstituto'],
+   qry:['UPDATE Contrato SET Activo=0 WHERE Id=?','UPDATE ContratoEspecialidad SET Activo=0 WHERE ContratoId=?','UPDATE ContratoInstituto SET Activo=0 WHERE ContratoId=?'],
+   val:['Verificar si la Persona tiene otro contrato activo antes de bloquear acceso','Operación transaccional en cascada a tablas hijas']},
+
+  {id:'UC-17',area:'Contrato',title:'Registrar sobrecupo autorizado en contrato',
+   desc:'CantidadSobreCupo indica cuántos pacientes extra puede atender el profesional sobre su cupo normal. Se usa al activar la función de agendamiento con sobrecupo (Rol 201).',
+   ent:['Contrato'],
+   qry:['UPDATE Contrato SET CantidadSobreCupo=? WHERE Id=? AND Activo=1'],
+   val:['CantidadSobreCupo ≥ 0','Requiere autorización por jefatura','Cruzar con Rol 201 (SobreCupo) en PerfilRol del profesional']},
+
+  {id:'UC-18',area:'Especialidad',title:'Listar especialidades activas del sistema',
+   desc:'Se obtienen todas las especialidades con Activo=1 para poblar selectores de agenda y contratos. La lista incluye Codigo y Nombre, ordenada alfabéticamente.',
+   ent:['Especialidad'],
+   qry:['SELECT Id, Codigo, Nombre FROM Especialidad WHERE Activo=1 ORDER BY Nombre ASC'],
+   val:['Excluir Activo=0 de todos los selectores de la aplicación','Cachear resultado para evitar queries repetidas en cada carga de formulario']},
+
+  {id:'UC-19',area:'Especialidad',title:'Filtrar especialidades con evolución clínica habilitada',
+   desc:'Solo las especialidades con Evoluciona=1 habilitan el registro de evoluciones en el escritorio del profesional (Rol 128 – Ingreso Evolución).',
+   ent:['Especialidad'],
+   qry:['SELECT * FROM Especialidad WHERE Activo=1 AND Evoluciona=1'],
+   val:['Relacionar con Funcion "Ingreso Evolución" y Rol 128','Kinesiólogo, Médico y Fonoaudiólogo típicamente tienen Evoluciona=1']},
+
+  {id:'UC-20',area:'Especialidad',title:'Filtrar especialidades que generan alta clínica',
+   desc:'Las especialidades con Alta=1 habilitan el proceso de alta del paciente. Es un flag de control clínico que delimita qué especialidades pueden dar de alta desde el sistema.',
+   ent:['Especialidad'],
+   qry:['SELECT * FROM Especialidad WHERE Activo=1 AND Alta=1'],
+   val:['Alta=1 suele asociarse a especialidades médicas con hospitalización','Verificar cruce con Roles 123/124/125 (Hospitalizado) en PerfilRol']},
+
+  {id:'UC-21',area:'Especialidad',title:'Identificar especialidades sanitarias',
+   desc:'Las especialidades con Sanitaria=1 pertenecen al ámbito sanitario regulado. Se usan para filtros de reportería o para habilitar funcionalidades diferenciadas.',
+   ent:['Especialidad'],
+   qry:['SELECT * FROM Especialidad WHERE Sanitaria=1 AND Activo=1'],
+   val:['Sanitaria no implica necesariamente Evoluciona=1 ni Alta=1','Puede cruzarse con roles de acceso diferenciados del área sanitaria']},
+
+  {id:'UC-22',area:'Especialidad',title:'Buscar especialidad por código externo (Fonasa/SIS)',
+   desc:'La Especialidad tiene un Codigo corto (Varchar 10) que puede coincidir con codificaciones externas (Fonasa, SIS). Se usa para integración con sistemas nacionales de salud.',
+   ent:['Especialidad'],
+   qry:['SELECT * FROM Especialidad WHERE Codigo=? AND Activo=1'],
+   val:['Codigo único entre especialidades activas','Máximo 10 caracteres (Varchar 10)','Retornar NULL si no existe la especialidad con ese código']},
+
+  {id:'UC-23',area:'PerfilRol',title:'Buscar usuario y ver sus roles asignados',
+   desc:'Desde "Administración de Permisos", se filtra por Instituto y/o Perfil y se busca el usuario. La tabla muestra sus roles actuales. "Ver Roles" abre un modal con la matriz roles vs perfiles.',
+   ent:['Persona','PerfilRol'],
+   qry:['SELECT P.Id, P.Nombres, P.ApellidoPaterno, PR.RolId FROM Persona P LEFT JOIN PerfilRol PR ON PR.PersonaId=P.Id WHERE P.Instituto=? AND PR.PerfilId=?'],
+   val:['Si el usuario no tiene roles, la columna aparece vacía (no es error)','Los roles se muestran con ID y descripción del catálogo rolesCatalogo']},
+
+  {id:'UC-24',area:'PerfilRol',title:'Asignar perfil a usuario según ámbito',
+   desc:'El admin selecciona un Ámbito y un Perfil. El sistema calcula la diferencia con los roles actuales y muestra qué roles se agregan (verde) o quitan (rojo) antes de guardar.',
+   ent:['PerfilRol','Persona'],
+   qry:['INSERT PerfilRol (PersonaId, PerfilId, RolId, Id_Ambito, Activo=\'S\') para cada rol del perfil','UPDATE PerfilRol SET Activo=\'N\' WHERE PersonaId=? AND Id_Ambito=? AND RolId NOT IN (roles_nuevo_perfil)'],
+   val:['Un usuario puede tener perfiles en distintos ámbitos simultáneamente','Activo es Char(1) — valores válidos solo \'S\' o \'N\'']},
+
+  {id:'UC-25',area:'PerfilRol',title:'Comparar roles entre dos perfiles del mismo ámbito',
+   desc:'La vista "Comparar Perfiles" permite seleccionar un perfil base y uno o más para comparar. Se genera una matriz con checkboxes y sección diferencial (roles añadidos / eliminados).',
+   ent:['PerfilRol'],
+   qry:['SELECT PerfilId, RolId FROM PerfilRol WHERE PerfilId IN (?,?) AND Id_Ambito=? AND Activo=\'S\''],
+   val:['Roles en seleccionados pero no en base → "añadidos" (verde)','Roles en base pero no en seleccionados → "eliminados" (rojo)']},
+
+  {id:'UC-26',area:'PerfilRol',title:'Verificar roles mínimos para especialidad del usuario',
+   desc:'El sistema cruza los roles del usuario con los roles esperados según su perfil de especialidad. Si hay roles faltantes muestra advertencia. Ej: Médico sin Rol 100 = configuración incompleta.',
+   ent:['Persona','PerfilRol'],
+   qry:['SELECT RolId FROM PerfilRol WHERE PersonaId=? AND Activo=\'S\' -- comparar vs roles estándar del perfil Médico: 100,102,105,123,124,320,344,350,372,373,377'],
+   val:['Alerta si hay roles faltantes respecto al perfil estándar','Un usuario puede tener roles extra fuera del perfil estándar (válido)']},
+
+  {id:'UC-27',area:'PerfilRol',title:'Gestionar usuario sin roles asignados (fallback por especialidad)',
+   desc:'Si un usuario no tiene ningún rol, el sistema hace fallback por especialidad para mostrar el perfil sugerido. La asignación es solo visual (sugerencia), no automática en BD.',
+   ent:['Persona','PerfilRol'],
+   qry:['SELECT P.* FROM Persona P LEFT JOIN PerfilRol PR ON PR.PersonaId=P.Id AND PR.Activo=\'S\' WHERE PR.PerfilRol IS NULL AND P.Activo=1'],
+   val:['El fallback es sugerencia visual, no asignación automática','Dataset de prueba: juana(11), rodrigo(12), angelica(13), patricio(14), sofia(15) tienen roles vacíos']},
+
+  {id:'UC-28',area:'PerfilRol',title:'Usuario con múltiples perfiles en distintos ámbitos',
+   desc:'Un usuario puede tener perfiles en más de un ámbito simultáneamente (ej. Asistencial + Administración). Cada ámbito tiene su propio conjunto de roles. Frecuente en jefaturas.',
+   ent:['PerfilRol'],
+   qry:['SELECT DISTINCT Id_Ambito, PerfilId FROM PerfilRol WHERE PersonaId=? AND Activo=\'S\''],
+   val:['No hay límite de ámbitos por usuario','Cada ámbito se gestiona de forma independiente']},
+
+  {id:'UC-29',area:'PerfilRol',title:'Guardar cambios de roles de usuario (transaccional)',
+   desc:'Al confirmar la edición, el sistema sincroniza: inserta nuevos roles con Activo=\'S\' y desactiva los que ya no corresponden. La operación es transaccional (todo o nada).',
+   ent:['PerfilRol'],
+   qry:['BEGIN TRAN','INSERT PerfilRol (PersonaId, PerfilId, RolId, Id_Ambito, Activo=\'S\') -- nuevos roles','UPDATE PerfilRol SET Activo=\'N\' WHERE PersonaId=? AND RolId IN (roles_removidos)','COMMIT -- o ROLLBACK si hay error'],
+   val:['Operación 100% transaccional','Registrar en log quién realizó el cambio y cuándo']},
+
+  {id:'UC-30',area:'PerfilRol',title:'Restaurar roles originales de usuario (sin guardar)',
+   desc:'El botón "Restaurar original" deshace los cambios pendientes en la sesión actual antes de guardar. No hace reversión en BD, solo recarga desde la base de datos.',
+   ent:['PerfilRol'],
+   qry:['-- Sin query SQL: operación de UI local (re-cargar datos desde BD)'],
+   val:['Solo disponible antes de hacer Guardar','Si ya se guardó, no hay rollback automático disponible']},
+
+  {id:'UC-31',area:'PerfilRol',title:'Crear nuevo perfil en un ámbito',
+   desc:'Desde el "Gestor de Perfiles", el admin escribe el nombre, selecciona el ámbito y marca los roles deseados. Al guardar se crea el perfil y sus registros en PerfilRol.',
+   ent:['PerfilRol'],
+   qry:['INSERT PerfilRol (PerfilId=nuevo_id, RolId=?, Id_Ambito=?, Activo=\'S\') -- un registro por cada rol seleccionado'],
+   val:['Nombre de perfil no puede estar repetido en el mismo ámbito','Debe seleccionarse al menos 1 rol al crear el perfil']},
+
+  {id:'UC-32',area:'PerfilRol',title:'Eliminar perfil de un ámbito',
+   desc:'El admin selecciona un perfil y lo elimina. El sistema verifica si hay usuarios con ese perfil antes de borrar. Si hay usuarios afectados, muestra advertencia y bloquea la eliminación.',
+   ent:['PerfilRol'],
+   qry:['SELECT COUNT(*) FROM PerfilRol WHERE PerfilId=? AND Activo=\'S\'','UPDATE PerfilRol SET Activo=\'N\' WHERE PerfilId=? AND Id_Ambito=? -- soft delete'],
+   val:['Bloquear eliminación si hay usuarios activos con ese perfil','Preferir desactivación (Activo=\'N\') sobre DELETE para trazabilidad']},
+
+  {id:'UC-33',area:'PerfilRol',title:'Añadir rol a un perfil existente',
+   desc:'El admin marca un rol no incluido en el perfil desde el checklist del Gestor de Perfiles y guarda. Se inserta el nuevo RolId en PerfilRol para ese PerfilId.',
+   ent:['PerfilRol'],
+   qry:['INSERT PerfilRol (PerfilId=?, RolId=?, Id_Ambito=?, Activo=\'S\')'],
+   val:['Verificar que el rol no esté ya asociado al perfil (evitar duplicados)','El RolId debe existir en el catálogo de roles']},
+
+  {id:'UC-34',area:'PerfilRol',title:'Quitar rol de un perfil existente',
+   desc:'El admin desmarca un rol del checklist. El sistema hace UPDATE Activo=\'N\' del registro en PerfilRol. Los usuarios que tengan ese perfil perderán ese rol.',
+   ent:['PerfilRol'],
+   qry:['UPDATE PerfilRol SET Activo=\'N\' WHERE PerfilId=? AND RolId=? AND Id_Ambito=?'],
+   val:['Mostrar advertencia indicando cuántos usuarios serán afectados','Preferir desactivación sobre DELETE para trazabilidad histórica']},
+
+  {id:'UC-35',area:'PerfilRol',title:'Crear nuevo rol en el catálogo',
+   desc:'Desde el Mantenedor de Funcionalidades, el admin ingresa un RolId numérico y un nombre descriptivo. El nuevo rol queda disponible para ser asignado a perfiles y funciones.',
+   ent:['PerfilRol'],
+   qry:['INSERT Rol (Id=?, Nombre=?) -- tabla catálogo de roles'],
+   val:['RolId debe ser único en el catálogo (rango actual: 100-382)','El nombre debe describir claramente el permiso que otorga']},
+
+  {id:'UC-36',area:'PerfilRol',title:'Eliminar rol del catálogo',
+   desc:'Solo se puede eliminar un rol si no está asociado a ningún perfil activo ni a ninguna función. El sistema muestra cuántos perfiles y funciones lo usan antes de confirmar.',
+   ent:['PerfilRol','Funcion'],
+   qry:['SELECT COUNT(*) FROM PerfilRol WHERE RolId=? AND Activo=\'S\'','SELECT COUNT(*) FROM RolFuncion WHERE RolId=?','DELETE Rol WHERE Id=? -- solo si no hay dependencias'],
+   val:['Bloquear borrado si hay dependencias activas','Borrado en cascada de RolFuncion si no hay dependencias en perfiles']},
+
+  {id:'UC-37',area:'Funcion',title:'Buscar función por nombre en el catálogo',
+   desc:'Desde el Mantenedor, el admin busca funciones por parte del nombre (ej. "Agenda", "Paciente"). El catálogo muestra Id, nombre completo del módulo y estado Activo.',
+   ent:['Funcion'],
+   qry:['SELECT Id, Nombre, Activo, Tipo, Sistema FROM Funcion WHERE Nombre LIKE \'%?%\' ORDER BY Nombre ASC'],
+   val:['Búsqueda case-insensitive','Mostrar funciones inactivas solo si se solicita explícitamente']},
+
+  {id:'UC-38',area:'Funcion',title:'Asociar función a un rol',
+   desc:'El admin selecciona un rol y marca las funciones del catálogo que debe habilitar. Se crea un registro en la tabla RolFuncion. Ej: Rol 105 (Recepción avanzado) → Funcion 1 (Buscar paciente).',
+   ent:['Funcion','PerfilRol'],
+   qry:['INSERT RolFuncion (RolId=?, FuncionId=?) -- relación N:M entre Rol y Funcion'],
+   val:['Una función puede estar en múltiples roles','Un rol puede tener múltiples funciones','No duplicar la misma combinación RolId+FuncionId']},
+
+  {id:'UC-39',area:'Funcion',title:'Desasociar función de un rol',
+   desc:'El admin desmarca una función del checklist del rol. El sistema elimina el registro de RolFuncion. Los usuarios con ese rol perderán acceso a esa funcionalidad.',
+   ent:['Funcion','PerfilRol'],
+   qry:['DELETE RolFuncion WHERE RolId=? AND FuncionId=?'],
+   val:['Advertir si la función es crítica (ej. Id:1 Buscar Paciente)','Verificar que el cambio no deje sin acceso a funciones básicas del sistema']},
+
+  {id:'UC-40',area:'Funcion',title:'Ver funciones asociadas a un rol específico',
+   desc:'Al seleccionar un rol en el Mantenedor, la tabla muestra el detalle: RolId, Rol (nombre), FunciónId y nombre de la función. Permite auditar qué accesos otorga un rol.',
+   ent:['Funcion','PerfilRol'],
+   qry:['SELECT R.Id, R.Nombre AS Rol, F.Id, F.Nombre AS Funcion FROM RolFuncion RF JOIN Funcion F ON RF.FuncionId=F.Id JOIN Rol R ON RF.RolId=R.Id WHERE RF.RolId=? ORDER BY F.Id ASC'],
+   val:['Mostrar tabla vacía si el rol no tiene funciones (no es error)','Ordenar por FunciónId ASC']},
+
+  {id:'UC-41',area:'Funcion',title:'Función que requiere paciente seleccionado (PacienteRequerido)',
+   desc:'Si PacienteRequerido=1, el sistema valida que haya un paciente activo en contexto antes de abrir la funcionalidad. De lo contrario muestra alerta "Seleccione un paciente".',
+   ent:['Funcion'],
+   qry:['SELECT PacienteRequerido FROM Funcion WHERE Id=? AND Activo=1'],
+   val:['Funciones de agenda y evolución tienen PacienteRequerido=1','Funciones de administración global tienen PacienteRequerido=0']},
+
+  {id:'UC-42',area:'Funcion',title:'Función con jerarquía (FuncionId padre — auto-referencia)',
+   desc:'El campo FuncionId es una FK recursiva (auto-referencia), permitiendo agrupar funciones en módulos o submenús. Las funciones de Agenda están bajo un nodo padre "Agenda".',
+   ent:['Funcion'],
+   qry:['SELECT F.Id, F.Nombre, P.Nombre AS Padre FROM Funcion F LEFT JOIN Funcion P ON F.FuncionId=P.Id ORDER BY F.FuncionId, F.Orden'],
+   val:['FuncionId puede ser NULL para funciones raíz (primer nivel)','Evitar ciclos en la jerarquía','Máximo recomendado: 2 niveles de profundidad']},
+
+  {id:'UC-43',area:'Funcion',title:'Función con diferente lugar de menú (LugarMenu)',
+   desc:'LugarMenu (Tinyint) define en qué zona de la interfaz aparece la función: menú lateral, barra superior, escritorio profesional, acceso rápido del paciente, etc.',
+   ent:['Funcion'],
+   qry:['SELECT * FROM Funcion WHERE LugarMenu=? AND Activo=1 ORDER BY Orden ASC'],
+   val:['Valores de LugarMenu deben estar en el catálogo de posiciones de menú','Orden define el índice dentro de la sección; evitar duplicados']},
+
+  {id:'UC-44',area:'Funcion',title:'Activar o desactivar una función del sistema',
+   desc:'El admin puede poner Funcion.Activo=0 para ocultar temporalmente una funcionalidad sin borrarla. Los roles que la tenían asignada dejan de verla inmediatamente.',
+   ent:['Funcion'],
+   qry:['UPDATE Funcion SET Activo=0 WHERE Id=? -- desactivar','UPDATE Funcion SET Activo=1 WHERE Id=? -- reactivar'],
+   val:['Las funciones inactivas no aparecen en los menús ni en el catálogo','No se eliminan registros de RolFuncion al desactivar (se conservan para re-activación)']},
+
+  {id:'UC-45',area:'Funcion',title:'Función con búsqueda automática de paciente (MostrarSearchPaciente)',
+   desc:'Si MostrarSearchPaciente=1, al abrir la funcionalidad se despliega automáticamente el buscador de pacientes. Mejora UX en funciones asistenciales que siempre requieren paciente.',
+   ent:['Funcion'],
+   qry:['SELECT MostrarSearchPaciente, PacienteRequerido FROM Funcion WHERE Id=?'],
+   val:['Distinto de PacienteRequerido: este campo controla la presentación, no el bloqueo','Típicamente habilitado en el escritorio del profesional (Función Id:6)']},
+
+  {id:'UC-46',area:'Seguridad',title:'Verificar acceso a funcionalidad para un usuario (end-to-end)',
+   desc:'Al acceder a una URL del sistema HIS se verifica: 1) La función existe y está activa, 2) El usuario tiene un rol que incluye esa función en RolFuncion, 3) Ese rol está en PerfilRol con Activo=\'S\'.',
+   ent:['Funcion','PerfilRol','Persona'],
+   qry:['SELECT 1 FROM PerfilRol PR JOIN RolFuncion RF ON PR.RolId=RF.RolId JOIN Funcion F ON RF.FuncionId=F.Id WHERE PR.PersonaId=? AND (F.Alias=? OR F.Link LIKE \'%?%\') AND PR.Activo=\'S\' AND F.Activo=1'],
+   val:['Retornar HTTP 403 si no hay acceso','Registrar intento en log de auditoría','Considerar Funcion.Origen para filtrar por sistema (HIS, SIC, etc.)','Validar también AccountEnabled=1 y Persona.Activo=1']},
+
+  {id:'UC-47',area:'Seguridad',title:'Determinar ámbito de usuario por especialidad (autodetección)',
+   desc:'Al cargar el perfil de un usuario, el sistema determina su ámbito por defecto según especialidad: kinesiólogo/médico/fonoaudiólogo → Asistencial; analista/admin → Administración; resto → Educación.',
+   ent:['Persona','PerfilRol'],
+   qry:['-- Lógica en capa de aplicación: regex sobre Persona.TipoPersona / Especialidad del usuario'],
+   val:['Fallback a "Educación" si la especialidad no coincide con ningún patrón','El ámbito puede cambiarse manualmente en la UI']},
+
+  {id:'UC-48',area:'Seguridad',title:'Verificar cobertura completa de roles de un perfil',
+   desc:'El sistema verifica que todos los roles del perfil estándar estén presentes en PerfilRol del usuario. Si hay roles faltantes, el perfil se marca como "incompleto".',
+   ent:['PerfilRol'],
+   qry:['SELECT RolId FROM perfilEstandar WHERE PerfilId=? EXCEPT SELECT RolId FROM PerfilRol WHERE PersonaId=? AND Activo=\'S\''],
+   val:['Perfil completo solo si el conjunto de roles del perfil ⊆ roles del usuario','Un usuario puede tener roles extra fuera del perfil estándar (válido)']},
+
+  {id:'UC-49',area:'Seguridad',title:'Usuario AdminCentral: acceso sin restricción de instituto',
+   desc:'Si Persona.AdminCentral=1, el usuario tiene visibilidad de datos de todos los institutos sin restricción por ContratoInstituto. Aplica para Gerencia e IT nacional.',
+   ent:['Persona','ContratoInstituto'],
+   qry:['IF (SELECT AdminCentral FROM Persona WHERE Id=?)=1 THEN -- no filtrar por InstitutoId ELSE -- JOIN ContratoInstituto WHERE InstitutoId=@institutoActual'],
+   val:['AdminCentral=1 debe implicar Rol 200 (PowerBI Nacional) en PerfilRol','Solo IT o Gerencia puede activar AdminCentral']},
+
+  {id:'UC-50',area:'Seguridad',title:'Validar sobrecupo en agenda del profesional',
+   desc:'Al agendar en sobrecupo (Función 201), el sistema verifica que el profesional tenga el Rol 201 habilitado Y que Contrato.CantidadSobreCupo > 0 para el período actual.',
+   ent:['PerfilRol','Contrato','Funcion'],
+   qry:['SELECT CantidadSobreCupo FROM Contrato WHERE PersonaId=? AND Activo=1','SELECT 1 FROM PerfilRol WHERE PersonaId=? AND RolId=\'201\' AND Activo=\'S\''],
+   val:['Ambas condiciones deben cumplirse: rol habilitado Y CantidadSobreCupo > 0','CantidadSobreCupo=0 bloquea la función aunque el usuario tenga el rol']},
+
+  {id:'UC-51',area:'Reportes',title:'Listar todos los usuarios por instituto',
+   desc:'El selector de Instituto filtra todos los usuarios activos del instituto seleccionado, mostrando nombre, apellidos, perfil y roles. Útil para auditoría de accesos por sede.',
+   ent:['Persona','PerfilRol','ContratoInstituto','Contrato'],
+   qry:['SELECT P.* FROM Persona P JOIN Contrato C ON C.PersonaId=P.Id JOIN ContratoInstituto CI ON CI.ContratoId=C.Id WHERE CI.InstitutoId=? AND CI.EsInstitutoPrincipal=1 AND C.Activo=1 AND P.Activo=1'],
+   val:['Filtrar preferentemente por instituto principal (EsInstitutoPrincipal=1)','Paginar resultado si supera 50 registros']},
+
+  {id:'UC-52',area:'Reportes',title:'Filtrar usuarios por perfil e instituto combinados',
+   desc:'Se combinan filtros de Instituto y Perfil. Por ejemplo: "Médicos del instituto Santiago". Los filtros son opcionales y acumulables. Se puede combinar con búsqueda de nombre.',
+   ent:['Persona','PerfilRol','Contrato','ContratoInstituto'],
+   qry:['SELECT DISTINCT P.* FROM Persona P JOIN PerfilRol PR ON PR.PersonaId=P.Id AND PR.PerfilId=? AND PR.Activo=\'S\' JOIN Contrato C ON C.PersonaId=P.Id JOIN ContratoInstituto CI ON CI.ContratoId=C.Id AND CI.InstitutoId=?'],
+   val:['Si no se selecciona instituto, mostrar todos','Si no se selecciona perfil, mostrar todos los perfiles']},
+
+  {id:'UC-53',area:'Reportes',title:'Ver matriz de roles vs perfiles por ámbito',
+   desc:'La vista "Comparar Perfiles" genera una tabla cruzada: columnas = perfiles seleccionados, filas = roles únicos. Los checkboxes muestran qué perfil incluye cada rol.',
+   ent:['PerfilRol'],
+   qry:['SELECT PerfilId, RolId FROM PerfilRol WHERE Id_Ambito=? AND Activo=\'S\' ORDER BY RolId ASC'],
+   val:['Rol con todos los checkboxes marcados = rol común a todos los perfiles del ámbito','Útil para identificar roles redundantes o faltantes entre perfiles similares']},
+
+  {id:'UC-54',area:'Reportes',title:'Comparar perfiles sin usuario como base (modo standalone)',
+   desc:'La vista "Comparar Perfiles (sin usuario)" compara perfiles directamente. Se elige un perfil base y uno o más para comparar, mostrando diferencias (añadidos / eliminados).',
+   ent:['PerfilRol'],
+   qry:['SELECT RolId FROM PerfilRol WHERE PerfilId=? AND Id_Ambito=? AND Activo=\'S\' -- ejecutar para cada perfil'],
+   val:['Roles en seleccionados pero no en base = "añadidos" (verde)','Roles en base pero no en seleccionados = "eliminados" (rojo)','Seleccionar todos los perfiles del ámbito con un solo botón']},
+
+  {id:'UC-55',area:'Reportes',title:'Identificar usuarios sin roles en un instituto',
+   desc:'Reporte de auditoría que lista los funcionarios activos de un instituto que no tienen ningún registro activo en PerfilRol. Indica que su acceso al HIS no ha sido configurado.',
+   ent:['Persona','PerfilRol','ContratoInstituto'],
+   qry:['SELECT P.* FROM Persona P LEFT JOIN PerfilRol PR ON PR.PersonaId=P.Id AND PR.Activo=\'S\' WHERE PR.PerfilRol IS NULL AND P.Activo=1'],
+   val:['Dataset de prueba: juana(11), rodrigo(12), angelica(13), patricio(14), sofia(15) tienen roles vacíos','Notificar al responsable del instituto para asignar perfiles pendientes']},
+
+  {id:'UC-56',area:'Reportes',title:'Auditar cambios de roles por período',
+   desc:'Se consultan los registros de PerfilRol con Activo=\'N\' (desactivados) para identificar roles removidos de usuarios. Permite trazar el historial de cambios de permisos.',
+   ent:['PerfilRol','Persona'],
+   qry:['SELECT PR.*, P.Nombres, P.ApellidoPaterno FROM PerfilRol PR JOIN Persona P ON P.Id=PR.PersonaId WHERE PR.Activo=\'N\' AND PR.FechaModificacion BETWEEN ? AND ? ORDER BY PR.FechaModificacion DESC'],
+   val:['Requiere campo de auditoría (FechaModificacion, UsuarioModificacion) en PerfilRol','Cruzar con log de eventos del sistema para trazabilidad completa','Exportable a Excel para auditorías formales']},
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+const STATE_KEY = 'qa_his_teleton_v2';
+let state = {};
+let activeArea = 'todos';
+let activeStatus = 'todos';
+let allExpanded = false;
+
+function loadState() {
+  try { state = JSON.parse(localStorage.getItem(STATE_KEY) || '{}'); } catch(e) { state = {}; }
+  UC.forEach(u => { if (!state[u.id]) state[u.id] = { status: 'pend', notes: '' }; });
+}
+
+function saveState() {
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  const q = (document.getElementById('search').value || '').toLowerCase().trim();
+  const grid = document.getElementById('uc-grid');
+  const empty = document.getElementById('empty-state');
+
+  const filtered = UC.filter(u => {
+    const areaOk = activeArea === 'todos' || u.area === activeArea;
+    const statusOk = activeStatus === 'todos' || state[u.id].status === activeStatus;
+    const searchOk = !q || u.id.toLowerCase().includes(q) || u.title.toLowerCase().includes(q) || u.desc.toLowerCase().includes(q) || u.area.toLowerCase().includes(q);
+    return areaOk && statusOk && searchOk;
+  });
+
+  document.getElementById('result-count').textContent = `Mostrando ${filtered.length} de ${UC.length}`;
+
+  if (!filtered.length) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  grid.innerHTML = filtered.map(u => buildCard(u)).join('');
+  updateStats();
+}
+
+function buildCard(u) {
+  const s = state[u.id].status;
+  const notes = state[u.id].notes || '';
+  const ac = AREA_COLORS[u.area] || {};
+  const isOpen = document.querySelector(`[data-uc="${u.id}"] .uc-body.open`) !== null;
+
+  const statusIcon = { pass: '✓', fail: '✗', block: '!', pend: '·' }[s] || '·';
+
+  return `<div class="uc-card ${s}" data-uc="${u.id}">
+    <div class="uc-header" onclick="toggleCard('${u.id}')">
+      <span class="uc-id">${u.id}</span>
+      <span class="uc-title">${u.title}</span>
+      <span class="area-badge" style="${ac.badge || ''}">${u.area}</span>
+      <div class="status-indicator ${s}">${statusIcon}</div>
+      <span class="chevron ${isOpen?'open':''}">▶</span>
+    </div>
+    <div class="uc-body ${isOpen?'open':''}">
+      <div class="uc-body-inner">
+        <p class="uc-desc">${u.desc}</p>
+        <div class="uc-meta">
+          <div class="meta-block">
+            <div class="meta-label">Entidades ER</div>
+            <div class="meta-tags">${u.ent.map(e=>`<span class="tag entity">${e}</span>`).join('')}</div>
+          </div>
+          <div class="meta-block">
+            <div class="meta-label">Validaciones</div>
+            <ul class="val-list">${u.val.map(v=>`<li>${v}</li>`).join('')}</ul>
+          </div>
+        </div>
+        <div class="meta-block" style="margin-bottom:14px">
+          <div class="meta-label">Query de referencia</div>
+          <div class="meta-tags">${u.qry.map(q=>`<span class="tag query">${q}</span>`).join('')}</div>
+        </div>
+      </div>
+      <div class="test-panel">
+        <div class="test-panel-title">Resultado de la prueba</div>
+        <div class="status-btns">
+          <button class="status-btn ${s==='pend'?'active-pend':''}" onclick="setUcStatus('${u.id}','pend',event)">◯ Pendiente</button>
+          <button class="status-btn ${s==='pass'?'active-pass':''}" onclick="setUcStatus('${u.id}','pass',event)">✅ Pasó</button>
+          <button class="status-btn ${s==='fail'?'active-fail':''}" onclick="setUcStatus('${u.id}','fail',event)">❌ Falló</button>
+          <button class="status-btn ${s==='block'?'active-block':''}" onclick="setUcStatus('${u.id}','block',event)">⚠️ Bloqueado</button>
+        </div>
+        <textarea class="notes-area" placeholder="Notas del tester: descripción del resultado, error encontrado, datos de prueba utilizados..." onchange="setNotes('${u.id}',this.value)">${notes}</textarea>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleCard(id) {
+  const card = document.querySelector(`[data-uc="${id}"]`);
+  if (!card) return;
+  const body = card.querySelector('.uc-body');
+  const chevron = card.querySelector('.chevron');
+  body.classList.toggle('open');
+  chevron.classList.toggle('open');
+}
+
+function expandAll() {
+  allExpanded = !allExpanded;
+  document.querySelectorAll('.uc-body').forEach(b => b.classList.toggle('open', allExpanded));
+  document.querySelectorAll('.chevron').forEach(c => c.classList.toggle('open', allExpanded));
+}
+
+// ── STATUS ───────────────────────────────────────────────────────────────────
+function setUcStatus(id, status, e) {
+  if (e) e.stopPropagation();
+  state[id].status = status;
+  saveState();
+  updateCardStatus(id, status);
+  updateStats();
+}
+
+function updateCardStatus(id, status) {
+  const card = document.querySelector(`[data-uc="${id}"]`);
+  if (!card) return;
+  card.className = `uc-card ${status}`;
+  const si = card.querySelector('.status-indicator');
+  const icons = { pass: '✓', fail: '✗', block: '!', pend: '·' };
+  si.className = `status-indicator ${status}`;
+  si.textContent = icons[status] || '·';
+  card.querySelectorAll('.status-btn').forEach(b => {
+    b.className = 'status-btn';
+    if (b.textContent.includes('Pasó') && status==='pass') b.classList.add('active-pass');
+    if (b.textContent.includes('Falló') && status==='fail') b.classList.add('active-fail');
+    if (b.textContent.includes('Bloqueado') && status==='block') b.classList.add('active-block');
+    if (b.textContent.includes('Pendiente') && status==='pend') b.classList.add('active-pend');
+  });
+}
+
+function setNotes(id, val) {
+  state[id].notes = val;
+  saveState();
+}
+
+// ── STATS ────────────────────────────────────────────────────────────────────
+function updateStats() {
+  const counts = { pass: 0, fail: 0, block: 0, pend: 0 };
+  UC.forEach(u => counts[state[u.id].status]++);
+  const total = UC.length;
+  const done = counts.pass + counts.fail + counts.block;
+  const pct = Math.round(done / total * 100);
+
+  document.getElementById('cnt-total').textContent = total;
+  document.getElementById('cnt-pend').textContent = counts.pend;
+  document.getElementById('cnt-pass').textContent = counts.pass;
+  document.getElementById('cnt-fail').textContent = counts.fail;
+  document.getElementById('pct-label').textContent = pct + '%';
+  document.getElementById('pb-pass').style.width = (counts.pass/total*100)+'%';
+  document.getElementById('pb-fail').style.width = (counts.fail/total*100)+'%';
+  document.getElementById('pb-block').style.width = (counts.block/total*100)+'%';
+}
+
+// ── FILTERS ──────────────────────────────────────────────────────────────────
+function setArea(btn, area) {
+  activeArea = area;
+  document.querySelectorAll('.area-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function setStatus(btn, status) {
+  activeStatus = status;
+  document.querySelectorAll('.status-chip').forEach(b => {
+    b.classList.remove('active');
+    const cls = b.dataset.st;
+    b.className = `status-chip ${cls}`;
+  });
+  btn.classList.add('active');
+  render();
+}
+
+function applyFilters() { render(); }
+
+// ── EXPORT ───────────────────────────────────────────────────────────────────
+function exportCSV() {
+  const rows = [['ID','Área','Título','Estado','Notas']];
+  UC.forEach(u => {
+    const s = state[u.id];
+    const statusLabel = { pass:'Pasó', fail:'Falló', block:'Bloqueado', pend:'Pendiente' }[s.status] || 'Pendiente';
+    rows.push([u.id, u.area, `"${u.title}"`, statusLabel, `"${(s.notes||'').replace(/"/g,'""')}"`]);
+  });
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'QA_CasosDeUso_HIS_Teleton.csv';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('✅ CSV exportado exitosamente');
+}
+
+// ── RESET ────────────────────────────────────────────────────────────────────
+function confirmReset() { document.getElementById('modal-reset').classList.add('open'); }
+function closeModal() { document.getElementById('modal-reset').classList.remove('open'); }
+function doReset() {
+  UC.forEach(u => { state[u.id] = { status: 'pend', notes: '' }; });
+  saveState(); closeModal(); render();
+  showToast('↺ Todas las pruebas reiniciadas');
+}
+
+// ── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+loadState();
+render();
+updateStats();
+
+// Keyboard shortcut: Escape closes modal
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
